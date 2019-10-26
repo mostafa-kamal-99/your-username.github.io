@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Delta<--->Star</title>
+</head>
+<body>
+
+<div ng-app="calculoid" ng-controller="CalculoidMainCtrl" ng-init="init({calcId:72609,apiKey:'5dac95f6e356d'})" ng-include="load()"></div>
+
+</body>
+</html>
