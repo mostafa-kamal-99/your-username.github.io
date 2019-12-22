@@ -1,0 +1,71 @@
+input format : M V30,60,70 R55 M V3,5 R55 Common Branches B 1 2 55 
+output :
+- ['V30,60,70 R55 L12 ', 'V3,5 R55']
+- ['1 2 55']
+
+(5+i)x+(6-2i)y = 5+7i
+(9+30i)x+(2+2i)y = 3i
+
+
+CommonResistences(1,['11 12 30 ', '12 13 5J ', '13 14 6 '],14)
+import numpy as NP
+import cmath
+
+
+def InterpretCircuit(CircuitString):
+    
+    Loops = CircuitString.partition(' Common Branches ')[0].split('M ')[1:]
+    CommonBranches = CircuitString.partition(' Common Branches ')[2].split('B ')[1:]
+
+    return Loops,CommonBranches
+
+def TotalResistence(Loop):
+    Loop = list(filter(lambda string : len(string) != 0,
+                       Loop.split(' ')))
+    resistive_elements = list(filter(lambda x: x[0] == 'R' or x[0] == 'C' or x[0] == 'L' ,
+                                Loop))
+    Resistence = 0
+    Reactance = 0
+    
+    for element in resistive_elements:
+        if element[0] == 'R':
+            Resistence = Resistence + float(element[1:])
+        if element[0] == 'L':
+            Reactance = Reactance + float(element[1:])
+        if element[0] == 'C':
+            Reactance = Reactance - float(element[1:])
+    
+    return complex(Resistence,Reactance)
+
+def CommonResistences(loop_number,CommonBranchesList):
+    neighboring_loops = list(filter(lambda string : int(string[0]) == loop_number or int(string[2]) == loop_number,
+                                   CommonBranchesList))
+    
+    return (list(map(lambda string : -complex(string[3:]),
+                     neighboring_loops)) )
+
+def ResistenceMatrix(Circuit):
+    ResistenceMatrix = []
+    loop_number = 1 
+    for loop in Circuit[0]:        
+
+        ResistenceRow = CommonResistences(loop_number,Circuit[1])
+        
+        ResistenceRow.insert(loop_number-1,TotalResistence(loop))
+        
+        ResistenceMatrix.append(ResistenceRow)
+        
+        loop_number = loop_number + 1
+        
+    return ResistenceMatrix
+
+
+CicuitDescription = input()
+
+Circuit = InterpretCircuit(CicuitDescription)
+print(ResistenceMatrix(Circuit))
+
+print(NP.linalg.solve( [[complex(5,1),complex(6,-2)],[complex(9,30),complex(2,2)]]
+                      , [complex(5,7),complex(0,3)]))
+
+#CommonResistences(1,['1 2 30', '3 4 50', '5 6 70'])
